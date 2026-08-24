@@ -13,7 +13,7 @@
 
 ---
 
-## English TL;DR
+## 英文简介（English Summary）
 
 `codex-research-workflow` is a **workflow router skill** for AI coding/research agents (Codex-style tools that follow the `SKILL.md` convention). It coordinates a Chinese-first, end-to-end academic research pipeline: topic discovery → literature processing → manuscript writing → figures & presentations → peer review & revision → statistics → research-code quality. It routes each user request to the most suitable specialist skill while preserving the user's language, target venue, evidence standard, and output format. It never invents citations, data, or results.
 
