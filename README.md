@@ -1,305 +1,298 @@
 # codex-research-workflow
 
-<div align="center">
-
-**中文优先的端到端学术科研工作流路由器（Agent Skill）**
+**Chinese-first, end-to-end academic research workflow router (Agent Skill)**
 
 [![Format](https://img.shields.io/badge/format-SKILL.md-blue)](SKILL.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/language-%E4%B8%AD%E6%96%87%E4%BC%98%E5%85%88%20%7C%20Chinese--first-orange)]()
-[![Skills](https://img.shields.io/badge/routed%20skills-30-purple)](#技能路由总表)
+[![Skills](https://img.shields.io/badge/routed%20skills-30-purple)](#skill-routing-table)
 
-</div>
-
----
-
-## 英文简介（English Summary）
-
-`codex-research-workflow` is a **workflow router skill** for AI coding/research agents (Codex-style tools that follow the `SKILL.md` convention). It coordinates a Chinese-first, end-to-end academic research pipeline: topic discovery → literature processing → manuscript writing → figures & presentations → peer review & revision → statistics → research-code quality. It routes each user request to the most suitable specialist skill while preserving the user's language, target venue, evidence standard, and output format. It never invents citations, data, or results.
-
-> ✅ 本仓库为**完整技能包**：`skills/` 子目录已包含本工作流协调的全部 30 个专项技能（含各自的脚本与资源），克隆/复制即可开箱使用（见 [安装](#安装)）。
+**English** | [中文](README.zh-CN.md)
 
 ---
 
-## 目录
+> ✅ This repository is a **complete skill pack**: the `skills/` subdirectory already contains all 30 specialist skills coordinated by this workflow (including their scripts and resources). Clone/copy and it works out of the box (see [Installation](#installation)).
 
-- [项目简介](#项目简介)
-- [设计目标](#设计目标)
-- [工作流总览](#工作流总览)
-- [各阶段详解](#各阶段详解)
-  - [Phase 1：选题与文献](#phase-1选题与文献)
-  - [Phase 2：论文写作](#phase-2论文写作)
-  - [Phase 3：图表与演示](#phase-3图表与演示)
-  - [研究代码质量（Ponytail 套件）](#研究代码质量ponytail-套件)
-  - [Phase 4：评审、统计与协调](#phase-4评审统计与协调)
-- [技能路由总表](#技能路由总表)
-- [协调规则](#协调规则)
-- [典型使用场景与入口指令](#典型使用场景与入口指令)
-- [安装](#安装)
-- [仓库结构](#仓库结构)
-- [注意事项与局限性](#注意事项与局限性)
-- [常见问题 FAQ](#常见问题-faq)
-- [贡献](#贡献)
-- [许可证](#许可证)
+## 目录 / Contents
+
+- [Overview](#overview)
+- [Design Goals](#design-goals)
+- [Workflow at a Glance](#workflow-at-a-glance)
+- [Phase Details](#phase-details)
+  - [Phase 1: Topic and Literature](#phase-1-topic-and-literature)
+  - [Phase 2: Manuscript Writing](#phase-2-manuscript-writing)
+  - [Phase 3: Figures and Presentations](#phase-3-figures-and-presentations)
+  - [Research Code Quality (Ponytail Suite)](#research-code-quality-ponytail-suite)
+  - [Phase 4: Review, Statistics, and Coordination](#phase-4-review-statistics-and-coordination)
+- [Skill Routing Table](#skill-routing-table)
+- [Coordination Rules](#coordination-rules)
+- [Typical Use Cases and Entry Prompts](#typical-use-cases-and-entry-prompts)
+- [Installation](#installation)
+- [Repository Layout](#repository-layout)
+- [Notes and Limitations](#notes-and-limitations)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 项目简介
+## Overview
 
-`codex-research-workflow` 是一个面向科研人员的 **Agent Skill（智能体技能）**。它本身不直接执行具体任务，而是充当"总调度 / 路由器"：根据用户当前所处的科研阶段和请求内容，把工作分派给最合适的专项技能，并在整个项目周期中保持上下文一致——包括用户的语言偏好（中文优先）、目标期刊或会议、证据标准以及期望的交付格式。
+`codex-research-workflow` is an **Agent Skill** built for researchers. It does not execute tasks directly; instead it acts as the dispatcher/router: based on the user's current research stage and request, it assigns work to the most suitable specialist skill and keeps context consistent across the whole project lifecycle — including the user's language preference (Chinese-first), target journal or conference, evidence standard, and expected deliverable format.
 
-一次完整的科研流程往往横跨多个工具和阶段：查方向、下文献、读 PDF、写初稿、做图、做幻灯片、应对审稿、核对统计方法、整理代码。如果每一步都单独向 AI 提问，上下文很容易丢失、口径容易漂移。本技能的目标就是让 **一个科研项目在多阶段推进时不丢上下文**：
+A full research cycle spans many tools and stages: exploring directions, collecting literature, reading PDFs, drafting, making figures, building slides, handling peer review, checking statistics, and cleaning up research code. Asking the AI separately at each step easily loses context and consistency. The goal of this skill is to keep **one research project moving through multiple stages without losing context**:
 
-- 记住并延续用户设定的语言（如中文交流 + 英文成稿）；
-- 记住目标期刊/会议及其引用格式要求；
-- 复用已有产物（综述草稿、图表、数据），而不是每次重写；
-- 区分"文献中的事实"、"用户提供的结果"、"模型解读"、"建议的下一步"，不把推断说成事实；
-- 不虚构文献元数据、实验结果或引文。
+- Remember and carry forward the user's language setup (e.g., discuss in Chinese + write in English);
+- Remember the target journal/conference and its citation format requirements;
+- Reuse existing artifacts (review drafts, figures, data) instead of rewriting them;
+- Distinguish "facts from literature", "user-provided results", "model interpretation", and "proposed next steps"; never present inference as fact;
+- Never invent bibliographic metadata, experimental results, or citations.
 
-## 设计目标
+## Design Goals
 
-| 目标 | 说明 |
+| Goal | Description |
 | --- | --- |
-| 中文优先 | 默认以中文与用户沟通，可产出符合学术规范的英文稿件 |
-| 端到端 | 覆盖选题 → 文献 → 写作 → 图表/演示 → 评审/返修 → 统计 → 代码质量全流程 |
-| 阶段路由 | 按 Phase 识别当前任务，自动选择最匹配的专项技能 |
-| 上下文连续 | 跨阶段保留来源、决策、产物清单与待办事项 |
-| 证据严谨 | 引文可溯源；不稳定信息用权威来源核验；绝不编造 |
+| Chinese-first | Communicates in Chinese by default; produces academically polished English manuscripts |
+| End-to-end | Covers topic → literature → writing → figures/slides → review/revision → statistics → code quality |
+| Phase routing | Identifies the current phase and automatically picks the best-matching specialist skill |
+| Context continuity | Preserves sources, decisions, artifact lists, and open items across phases |
+| Evidence discipline | Traceable citations; volatile claims verified against authoritative sources; never fabricates |
 
-## 工作流总览
+## Workflow at a Glance
 
 ```mermaid
 flowchart LR
-    A["Phase 1<br/>选题与文献"] --> B["Phase 2<br/>论文写作"]
-    B --> C["Phase 3<br/>图表与演示"]
-    C --> D["Phase 4<br/>评审 · 统计 · 返修"]
-    Q["Ponytail 套件<br/>研究代码质量"] -.-> B
+    A["Phase 1<br/>Topic & Literature"] --> B["Phase 2<br/>Manuscript Writing"]
+    B --> C["Phase 3<br/>Figures & Presentations"]
+    C --> D["Phase 4<br/>Review · Statistics · Revision"]
+    Q["Ponytail Suite<br/>Research Code Quality"] -.-> B
     Q -.-> C
-    D -->|"返修需要补充实验/文献"| A
+    D -->|"revision needs literature/experiments"| A
 ```
 
-四个阶段并非严格串行，可以按需进入任意阶段；当返修需要补文献或补实验时，流程会回环到前面的阶段。
+The four phases are not strictly sequential — you can enter any phase as needed. When a revision requires new literature or experiments, the flow loops back to earlier phases.
 
-## 各阶段详解
+## Phase Details
 
-### Phase 1：选题与文献
+### Phase 1: Topic and Literature
 
-从模糊的研究方向出发，逐步收敛为可写的综述或论文选题。
+From a vague research direction to a writable review or paper topic.
 
-| 技能 | 用途 | 典型输入 → 输出 |
+| Skill | Purpose | Typical input → output |
 | --- | --- | --- |
-| `scientific-brainstorming` | 前沿探索、选题构思、寻找研究空白（research gap） | 一个大方向 → 候选课题清单与研究空白分析 |
-| `nature-academic-search` | 检索式扩展与核心文献发现 | 关键词/研究问题 → 扩展检索式 + 核心论文线索 |
-| `literature-downloader` | 批量获取链接、摘要及合法可得的全文本 | 论文列表 → 链接批次 + 摘要汇编 |
-| `pdf-inspector` | PDF 分类、结构化文本抽取、转 Markdown；扫描页路由到 OCR | 一批 PDF → 分类结果 + 结构化文本/Markdown |
-| `nature-reader` | 单篇论文精读（方法、图、结果、结论） | 一篇论文 → 深度阅读笔记 |
-| `literature-review` | 跨论文综合与综述草稿撰写 | 多篇精读笔记 → 综述草稿 |
+| `scientific-brainstorming` | Frontier exploration, topic ideation, finding research gaps | A broad direction → candidate topics + gap analysis |
+| `nature-academic-search` | Query expansion and core-literature discovery | Keywords/research question → expanded queries + core paper leads |
+| `literature-downloader` | Batch links, abstracts, and legally available full text | Paper list → link batches + abstract digest |
+| `pdf-inspector` | PDF classification, structured text extraction, Markdown conversion; routes scanned pages to OCR | A batch of PDFs → classification + structured text/Markdown |
+| `nature-reader` | Deep reading of one paper (methods, figures, results, conclusions) | One paper → deep-reading notes |
+| `literature-review` | Cross-paper synthesis and review drafting | Reading notes → review draft |
 
-### Phase 2：论文写作
+### Phase 2: Manuscript Writing
 
-从中文思路到英文成稿，再到语言与引用的双重打磨。
+From Chinese ideas to an English manuscript, then dual polishing of language and citations.
 
-| 技能 | 用途 | 典型输入 → 输出 |
+| Skill | Purpose | Typical input → output |
 | --- | --- | --- |
-| `nature-writing` | 将中文想法、研究计划或结果转化为英文论文结构或初稿 | 中文笔记/提纲 → 英文稿结构与草稿 |
-| `nature-polishing` | 打磨英文学术逻辑、措辞与文体 | 英文段落 → 更严谨流畅的学术表达 |
-| `nature-citation` | 引用位置检查、出处核验、按目标期刊格式排版参考文献 | 稿件 + 目标期刊 → 引用建议与规范化参考文献 |
-| `academic-humanizer` | 让英文科技写作更自然、更具作者个人风格、更贴合证据（降低 AIGC 痕迹） | 英文章节 → 更自然的学术行文 |
-| `humanizer-zh-academic` | 让中文学术写作更自然，同时保留学术含义与学科表达习惯 | 中文章节 → 更自然的中文学术行文 |
+| `nature-writing` | Turn Chinese ideas, study plans, or results into an English manuscript structure or draft | Chinese notes/outline → English structure + draft |
+| `nature-polishing` | Polish English academic logic, phrasing, and style | English paragraphs → tighter academic prose |
+| `nature-citation` | Citation placement, provenance checks, target-journal reference formatting | Manuscript + target journal → citation advice + formatted references |
+| `academic-humanizer` | Make English scientific writing more natural, author-specific, and evidence-grounded (reducing AIGC traces) | English sections → more natural academic prose |
+| `humanizer-zh-academic` | Make Chinese academic writing more natural while preserving scholarly meaning and discipline conventions | Chinese sections → more natural Chinese academic prose |
 
-> **Humanizer 红线**：两个 humanizer 都必须保留技术含义、数字、引用、局限性与作者的真实主张；绝不伪造数据、引用或个人经历。
+> **Humanizer red line**: both humanizers must preserve technical meaning, numbers, citations, limitations, and the author's actual claims; never fabricate data, citations, or personal experience.
 
-### Phase 3：图表与演示
+### Phase 3: Figures and Presentations
 
-出版级图片与各类汇报幻灯片。
+Publication-quality figures and presentation slides of all kinds.
 
-| 技能 | 用途 | 典型输入 → 输出 |
+| Skill | Purpose | Typical input → output |
 | --- | --- | --- |
-| `nature-figure` / `scientific-visualization` | 出版级数据图与机制示意图 | 数据/示意需求 → 可发表质量的图 |
-| `image-to-editable-ppt` | 把截图、论文插图或手绘草图重建为可编辑幻灯片元素 | 图片 → 可编辑 PPT 元素 |
-| `nature-paper2ppt` | 从单篇论文生成中文汇报演示 | 一篇论文 → 中文汇报 PPT |
-| `academic-slide-minimalist` | 简洁风格的文献汇报幻灯片设计 | 文献内容 → 极简风幻灯片 |
-| `academic-slide-pragmatic-fallback` | 可靠的兜底幻灯片设计方案 | 任意内容 → 稳定可用的幻灯片版式 |
-| `academic-research-suite` | 多论文综述型演示与阶段性成果管理 | 多篇论文 → 综述演示 + 分阶段产物 |
+| `nature-figure` / `scientific-visualization` | Publication-quality data plots and mechanism diagrams | Data/sketch needs → submission-ready figures |
+| `image-to-editable-ppt` | Rebuild screenshots, paper figures, or sketches as editable slide elements | Image → editable PPT elements |
+| `nature-paper2ppt` | Build a Chinese presentation from a single paper | One paper → Chinese presentation deck |
+| `academic-slide-minimalist` | Minimalist slide design for literature reports | Literature content → minimalist deck |
+| `academic-slide-pragmatic-fallback` | Reliable fallback slide design | Any content → stable, usable deck layout |
+| `academic-research-suite` | Multi-paper review presentations and staged artifact management | Multiple papers → review deck + staged artifacts |
 
-### 研究代码质量（Ponytail 套件）
+### Research Code Quality (Ponytail Suite)
 
-针对科研代码的"够用就好"哲学：优先最小充分实现，避免过度工程。
+A "just enough is best" philosophy for research code: prefer the smallest adequate implementation and avoid over-engineering.
 
-| 技能 | 用途 |
+| Skill | Purpose |
 | --- | --- |
-| `ponytail` | 编码时倾向最小充分实现，避免不必要的复杂性 |
-| `ponytail-audit` | 对整个仓库进行过度工程与可避免复杂度的审计 |
-| `ponytail-debt` | 收集并归档 `ponytail:` 注释与被推迟的简化事项 |
-| `ponytail-gain` | 汇报简化改动带来的可度量收益 |
-| `ponytail-help` | Ponytail 套件的快速参考卡 |
-| `ponytail-review` | 聚焦"不必要的复杂度与更简替代方案"的代码评审 |
+| `ponytail` | Prefer the smallest adequate implementation while coding; avoid unnecessary complexity |
+| `ponytail-audit` | Audit a whole repository for over-engineering and avoidable complexity |
+| `ponytail-debt` | Collect and organize `ponytail:` comments and deferred simplifications |
+| `ponytail-gain` | Report the measured impact of simplification changes |
+| `ponytail-help` | Quick-reference card for the Ponytail suite |
+| `ponytail-review` | Code review focused on unnecessary complexity and simpler alternatives |
 
-### Phase 4：评审、统计与协调
+### Phase 4: Review, Statistics, and Coordination
 
-投稿前后的质量把关与全局协调。
+Quality gates around submission and global coordination.
 
-| 技能 | 用途 | 典型输入 → 输出 |
+| Skill | Purpose | Typical input → output |
 | --- | --- | --- |
-| `nature-reviewer` | 以审稿人视角审计创新性、证据、实验与缺乏支撑的结论 | 稿件 → 审稿式问题清单 |
-| `nature-response` | 拆解审稿意见，规划回复与返修路线 | 审稿意见 → 逐条回复方案 + 返修计划 |
-| `statistical-analysis` | 统计方法选择、前提假设核查与报告规范检查 | 分析方案/结果 → 方法适用性与报告建议 |
-| `academic-research-suite` | 协调分阶段的"研究→论文"工作流，保存中间产物 | 项目状态 → 阶段推进计划与产物清单 |
-| `office-academic-skill` / `research-writing-skill` / `scientific-toolkit-skill` | 中文优先的 Word、PowerPoint、科研写作与科学计算任务 | 各类办公/计算需求 → 对应文档与脚本 |
+| `nature-reviewer` | Reviewer-style audit of novelty, evidence, experiments, and unsupported conclusions | Manuscript → reviewer-style issue list |
+| `nature-response` | Decompose reviewer comments and plan responses and revisions | Review comments → point-by-point response + revision plan |
+| `statistical-analysis` | Statistical method selection, assumption checks, and reporting standards | Analysis plan/results → method fit + reporting advice |
+| `academic-research-suite` | Coordinate staged research-to-paper work and preserve intermediate artifacts | Project status → stage plan + artifact list |
+| `office-academic-skill` / `research-writing-skill` / `scientific-toolkit-skill` | Chinese-first Word, PowerPoint, research writing, and scientific computing tasks | Office/computing needs → documents and scripts |
 
-## 技能路由总表
+## Skill Routing Table
 
-本工作流目前协调以下 **30 个专项技能**（全部随仓库 `skills/` 目录一并发布）：
+This workflow currently coordinates the following **30 specialist skills** (all shipped in the repository's `skills/` directory):
 
-| # | 技能 | 所属阶段 |
+| # | Skill | Phase |
 | --- | --- | --- |
-| 1 | `scientific-brainstorming` | Phase 1 选题与文献 |
-| 2 | `nature-academic-search` | Phase 1 选题与文献 |
-| 3 | `literature-downloader` | Phase 1 选题与文献 |
-| 4 | `pdf-inspector` | Phase 1 选题与文献 |
-| 5 | `nature-reader` | Phase 1 选题与文献 |
-| 6 | `literature-review` | Phase 1 选题与文献 |
-| 7 | `nature-writing` | Phase 2 论文写作 |
-| 8 | `nature-polishing` | Phase 2 论文写作 |
-| 9 | `nature-citation` | Phase 2 论文写作 |
-| 10 | `academic-humanizer` | Phase 2 论文写作 |
-| 11 | `humanizer-zh-academic` | Phase 2 论文写作 |
-| 12 | `nature-figure` | Phase 3 图表与演示 |
-| 13 | `scientific-visualization` | Phase 3 图表与演示 |
-| 14 | `image-to-editable-ppt` | Phase 3 图表与演示 |
-| 15 | `nature-paper2ppt` | Phase 3 图表与演示 |
-| 16 | `academic-slide-minimalist` | Phase 3 图表与演示 |
-| 17 | `academic-slide-pragmatic-fallback` | Phase 3 图表与演示 |
+| 1 | `scientific-brainstorming` | Phase 1 Topic & Literature |
+| 2 | `nature-academic-search` | Phase 1 Topic & Literature |
+| 3 | `literature-downloader` | Phase 1 Topic & Literature |
+| 4 | `pdf-inspector` | Phase 1 Topic & Literature |
+| 5 | `nature-reader` | Phase 1 Topic & Literature |
+| 6 | `literature-review` | Phase 1 Topic & Literature |
+| 7 | `nature-writing` | Phase 2 Manuscript Writing |
+| 8 | `nature-polishing` | Phase 2 Manuscript Writing |
+| 9 | `nature-citation` | Phase 2 Manuscript Writing |
+| 10 | `academic-humanizer` | Phase 2 Manuscript Writing |
+| 11 | `humanizer-zh-academic` | Phase 2 Manuscript Writing |
+| 12 | `nature-figure` | Phase 3 Figures & Presentations |
+| 13 | `scientific-visualization` | Phase 3 Figures & Presentations |
+| 14 | `image-to-editable-ppt` | Phase 3 Figures & Presentations |
+| 15 | `nature-paper2ppt` | Phase 3 Figures & Presentations |
+| 16 | `academic-slide-minimalist` | Phase 3 Figures & Presentations |
+| 17 | `academic-slide-pragmatic-fallback` | Phase 3 Figures & Presentations |
 | 18 | `academic-research-suite` | Phase 3 / Phase 4 |
-| 19 | `ponytail` | 研究代码质量 |
-| 20 | `ponytail-audit` | 研究代码质量 |
-| 21 | `ponytail-debt` | 研究代码质量 |
-| 22 | `ponytail-gain` | 研究代码质量 |
-| 23 | `ponytail-help` | 研究代码质量 |
-| 24 | `ponytail-review` | 研究代码质量 |
-| 25 | `nature-reviewer` | Phase 4 评审与统计 |
-| 26 | `nature-response` | Phase 4 评审与统计 |
-| 27 | `statistical-analysis` | Phase 4 评审与统计 |
-| 28 | `office-academic-skill` | Phase 4 协调 |
-| 29 | `research-writing-skill` | Phase 4 协调 |
-| 30 | `scientific-toolkit-skill` | Phase 4 协调 |
+| 19 | `ponytail` | Research Code Quality |
+| 20 | `ponytail-audit` | Research Code Quality |
+| 21 | `ponytail-debt` | Research Code Quality |
+| 22 | `ponytail-gain` | Research Code Quality |
+| 23 | `ponytail-help` | Research Code Quality |
+| 24 | `ponytail-review` | Research Code Quality |
+| 25 | `nature-reviewer` | Phase 4 Review & Statistics |
+| 26 | `nature-response` | Phase 4 Review & Statistics |
+| 27 | `statistical-analysis` | Phase 4 Review & Statistics |
+| 28 | `office-academic-skill` | Phase 4 Coordination |
+| 29 | `research-writing-skill` | Phase 4 Coordination |
+| 30 | `scientific-toolkit-skill` | Phase 4 Coordination |
 
-## 协调规则
+## Coordination Rules
 
-本技能在调度时遵循以下规则：
+The router follows these rules:
 
-1. **先定阶段再派活**：路由前先确认当前阶段、输入、目标产物、语言、目标期刊与证据标准。
-2. **按依赖顺序执行**：若请求涉及多个阶段，按依赖顺序执行，并维护一份紧凑的项目记录（来源、决策、产物、未决事项）。
-3. **复用而非重写**：已有产物直接复用；明确区分"有来源的事实"、"用户提供的结果"、"解读"、"建议的下一步"。
-4. **引文零容忍造假**：对文献与引用，用权威来源核验易变或时效性主张，绝不编造文献元数据。
-5. **改写保真**：人性化改写（humanization）必须保留技术含义、数字、引用、局限性与作者真实主张。
-6. **最小必要提问**：仅当缺少主题、论文、数据、目标期刊或输出格式会阻碍下一步安全执行时才追问；否则做出最小的显式假设并继续。
+1. **Identify the phase before dispatching**: confirm the current phase, inputs, target output, language, target venue, and evidence standard before routing.
+2. **Execute in dependency order**: for multi-phase requests, execute in dependency order and keep a compact project record (sources, decisions, artifacts, open items).
+3. **Reuse, don't rewrite**: reuse existing artifacts; clearly separate "sourced facts", "user-provided results", "interpretation", and "proposed next steps".
+4. **Zero tolerance for fabricated citations**: verify volatile or time-sensitive claims with authoritative sources; never invent bibliographic metadata.
+5. **Faithful rewriting**: humanization must preserve technical meaning, numbers, citations, limitations, and the author's actual claims.
+6. **Minimum necessary questions**: ask only when a missing topic, paper, dataset, target journal, or output format blocks a safe and useful next step; otherwise make the smallest explicit assumption and continue.
 
-## 典型使用场景与入口指令
+## Typical Use Cases and Entry Prompts
 
-以下入口请求可直接触发本工作流：
+The following entry prompts trigger the workflow directly (prompts may be given in Chinese or English):
 
-| 场景 | 示例指令 |
+| Scenario | Example prompt |
 | --- | --- |
-| 全流程开题 | "从研究方向开始，完成选题、检索、阅读和综述草稿。" |
-| 论文转汇报 | "把这篇论文精读后制作中文汇报 PPT。" |
-| 中译英成稿 | "将中文研究思路写成英文初稿，再进行学术润色和引用检查。" |
-| 应对审稿 | "根据审稿意见制定返修路线并检查统计方法。" |
-| 代码瘦身 | "审查这个分析仓库是否存在过度工程，并给出简化方案。" |
-| PDF 批处理 | "把这批 PDF 分类、抽取文本并转成 Markdown，供后续综述使用。" |
+| Full-cycle topic development | "从研究方向开始，完成选题、检索、阅读和综述草稿。" (Start from a research direction; complete topic selection, search, reading, and a review draft.) |
+| Paper to presentation | "把这篇论文精读后制作中文汇报 PPT。" (Deep-read this paper and build a Chinese presentation deck.) |
+| Chinese-to-English drafting | "将中文研究思路写成英文初稿，再进行学术润色和引用检查。" (Turn my Chinese research ideas into an English draft, then polish and check citations.) |
+| Handling peer review | "根据审稿意见制定返修路线并检查统计方法。" (Plan the revision from reviewer comments and check the statistical methods.) |
+| Code slimming | "审查这个分析仓库是否存在过度工程，并给出简化方案。" (Audit this analysis repo for over-engineering and propose simplifications.) |
+| PDF batch processing | "把这批 PDF 分类、抽取文本并转成 Markdown，供后续综述使用。" (Classify these PDFs, extract text, convert to Markdown for a later review.) |
 
-**预期行为**：Agent 会先判断你所处的阶段与交付物类型，调用对应专项技能执行，并在跨步骤之间保持语言、期刊要求、证据标准与中间产物的一致性。
+**Expected behavior**: the agent first determines your stage and deliverable type, invokes the matching specialist skill, and keeps language, venue requirements, evidence standards, and intermediate artifacts consistent across steps.
 
-## 安装
+## Installation
 
-本技能遵循 Agent Skills 的 `SKILL.md` 约定（YAML frontmatter 提供 `name` 与 `description`）。适用于支持该约定的智能体平台。
+This skill follows the Agent Skills `SKILL.md` convention (YAML frontmatter provides `name` and `description`). It works on agent platforms that support this convention.
 
-### 方式一：克隆整个仓库
+### Option 1: Clone the whole repository
 
 ```bash
 git clone https://github.com/changzhanyou0215/codex-research-workflow.git
 ```
 
-仓库中 `skills/` 目录已经包含全部 30 个专项技能。安装 = 把 `skills/` 下的每个技能目录复制到你所用平台加载技能的目录：
+The repository's `skills/` directory already contains all 30 specialist skills. Installation = copy each skill directory under `skills/` into your platform's skill directory:
 
 ```bash
-# 示例：将全部技能复制到 opencode 的 skills 目录
-xcopy /E /I codex-research-workflow\skills\* <平台技能目录>\
+# Example: copy all skills into the opencode skills directory
+xcopy /E /I codex-research-workflow\skills\* <platform-skills-dir>\
 ```
 
-确保最终路径形如：
+Make sure the final layout looks like:
 
 ```text
-<skills 目录>/codex-research-workflow/SKILL.md        # 路由器
-<skills 目录>/nature-writing/SKILL.md                 # 各专项技能
-<skills 目录>/pdf-inspector/SKILL.md
+<skills dir>/codex-research-workflow/SKILL.md        # router
+<skills dir>/nature-writing/SKILL.md                 # specialist skills
+<skills dir>/pdf-inspector/SKILL.md
 ...
 ```
 
-常见平台目录示例（以各平台官方文档为准）：
+Common platform directories (check each platform's official docs):
 
-- **opencode**：`.opencode/skill/`
-- **Claude Code**：`.claude/skills/`
-- **Codex CLI**：`~/.codex/skills/`
+- **opencode**: `.opencode/skill/`
+- **Claude Code**: `.claude/skills/`
+- **Codex CLI**: `~/.codex/skills/`
 
-### 方式二：仅安装主技能
+### Option 2: Install the main skill only
 
-只复制 `SKILL.md` 到平台技能目录下的同名文件夹即可获得路由能力；若要实际执行各阶段任务，请同时复制 `skills/` 下对应技能。
+Copy just `SKILL.md` into a same-named folder in your platform's skill directory to get routing capability; to actually execute stage tasks, also copy the matching skills under `skills/`.
 
-### 完整技能包说明
+### About the complete skill pack
 
-- 本仓库**不是只有路由器**：`skills/` 内打包发布全部 30 个被协调的专项技能，包含其脚本与资源（PDF 工具、图表模板、PPT 模板、统计工具等），总计约 95 MB，约 4000+ 个文件。
-- 各技能随本仓库版本保持同步；如需单独更新某个技能，可复制新的技能目录覆盖 `skills/` 对应目录后提交。
-- 安装后可直接询问你的 Agent："列出当前可用的技能。" 来验证加载状态。
+- This repository is **not just the router**: `skills/` ships all 30 coordinated specialist skills with their scripts and resources (PDF tooling, figure templates, PPT templates, statistics tooling, etc.), about 95 MB and 4,000+ files in total.
+- Skills are kept in sync with this repository version; to update a single skill, copy the new skill directory over the matching directory in `skills/` and commit.
+- After installing, just ask your agent: "List the currently available skills." to verify loading.
 
-## 仓库结构
+## Repository Layout
 
 ```text
 codex-research-workflow/
-├── SKILL.md            # 路由器主文件（含 frontmatter 元数据与完整路由逻辑）
-├── README.md           # 本说明文档
-├── LICENSE             # MIT 许可证
-└── skills/             # 完整技能包：被协调的全部 30 个专项技能
+├── SKILL.md            # router main file (frontmatter metadata + full routing logic)
+├── README.md           # English documentation (this file)
+├── README.zh-CN.md     # Chinese documentation
+├── LICENSE             # MIT license
+└── skills/             # complete skill pack: all 30 coordinated specialist skills
     ├── scientific-brainstorming/
     ├── nature-academic-search/
     ├── pdf-inspector/
     ├── nature-writing/
     ├── ponytail/
     ├── academic-research-suite/
-    └── ... (30 个技能目录，含脚本与资源文件)
+    └── ... (30 skill directories with scripts and resources)
 ```
 
-## 注意事项与局限性
+## Notes and Limitations
 
-- 本技能旨在提升写作与流程质量，**不承诺绕过任何 AI 检测器**；humanizer 的定位是改善作者性、清晰度、具体性与自然学术语感。
-- 人性化改写会严格保留含义、引用、局限性与证据，因此不会为了"降检测率"而牺牲学术准确性。
-- 涉及事实可能变化的研究问题（最新进展、数据、政策等），应以现行权威来源核验为准。
-- 各专项技能随包发布，但部分技能（如 `pdf-inspector`、`nature-figure`）依赖特定运行时（Python 库、PDF/OCR 工具等），使用前请参照对应技能的 SKILL.md 检查环境依赖。
+- This skill aims to improve writing and workflow quality; it **does not claim to bypass any AI detector**. The humanizers improve authorship, clarity, specificity, and natural scholarly voice.
+- Humanized rewriting strictly preserves meaning, citations, limitations, and evidence; it will not sacrifice academic accuracy to "lower detection rates".
+- For research questions where facts may change (latest progress, data, policies), defer to current authoritative sources.
+- All specialist skills ship with the pack, but some (e.g., `pdf-inspector`, `nature-figure`) depend on specific runtimes (Python libraries, PDF/OCR tools); check each skill's SKILL.md for environment dependencies before use.
 
-## 常见问题 FAQ
+## FAQ
 
-**Q1：只安装这一个 SKILL.md 就能用全部功能吗？**
-只装 `SKILL.md` 获得的是路由/调度能力。完整功能无需另行下载——`skills/` 目录已随包提供全部 30 个专项技能，同样复制到技能目录即可。
+**Q1: Does installing only this SKILL.md give me full functionality?**
+Installing only `SKILL.md` gives routing/dispatch capability. Full functionality requires no extra downloads — the `skills/` directory already ships all 30 specialist skills; copy them into your skills directory the same way.
 
-**Q2：支持纯英文项目吗？**
-支持。"中文优先"指默认沟通语言与中文输入的深度支持，英文写作、润色与改写同样是核心能力。
+**Q2: Does it support English-only projects?**
+Yes. "Chinese-first" refers to the default communication language and deep support for Chinese input; English writing, polishing, and humanization are equally core capabilities.
 
-**Q3：它会帮我自动下载付费论文吗？**
-不会绕过版权限制。`literature-downloader` 只处理链接批量整理、摘要与合法可获得的全文本。
+**Q3: Will it automatically download paywalled papers?**
+No. It does not bypass copyright. `literature-downloader` only organizes link batches, abstracts, and legally available full text.
 
-**Q4：如何让它记住我的目标期刊？**
-在同一会话中明确告知目标期刊即可；路由规则要求它在整个项目周期内保持该设定并在引用排版时应用。
+**Q4: How do I make it remember my target journal?**
+State the target journal explicitly in the session; the routing rules require it to preserve that setting across the project and apply it when formatting citations.
 
-## 贡献
+## Contributing
 
-欢迎通过 Issue 与 Pull Request 参与改进：
+Issues and Pull Requests are welcome:
 
-1. Fork 本仓库并新建分支；
-2. 修改 `SKILL.md` 或文档；
-3. 提交 PR 并说明动机与影响范围。
+1. Fork this repository and create a branch;
+2. Modify `SKILL.md` or the documentation;
+3. Open a PR describing motivation and scope.
 
-反馈渠道：[Issues](https://github.com/changzhanyou0215/codex-research-workflow/issues)
+Feedback: [Issues](https://github.com/changzhanyou0215/codex-research-workflow/issues)
 
-## 许可证
+## License
 
-本项目基于 [MIT License](LICENSE) 开源。
+Released under the [MIT License](LICENSE).
