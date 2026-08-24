@@ -4,7 +4,7 @@
 
 [![Format](https://img.shields.io/badge/format-SKILL.md-blue)](SKILL.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Language](https://img.shields.io/badge/language-%E4%B8%AD%E6%96%87%E4%BC%98%E5%85%88%20%7C%20Chinese--first-orange)]()
+[![Language](https://img.shields.io/badge/language-Chinese--first-orange)]()
 [![Skills](https://img.shields.io/badge/routed%20skills-30-purple)](#skill-routing-table)
 
 **English** | [中文](README.zh-CN.md)
@@ -13,7 +13,7 @@
 
 > ✅ This repository is a **complete skill pack**: the `skills/` subdirectory already contains all 30 specialist skills coordinated by this workflow (including their scripts and resources). Clone/copy and it works out of the box (see [Installation](#installation)).
 
-## 目录 / Contents
+## Contents
 
 - [Overview](#overview)
 - [Design Goals](#design-goals)
@@ -193,12 +193,12 @@ The following entry prompts trigger the workflow directly (prompts may be given 
 
 | Scenario | Example prompt |
 | --- | --- |
-| Full-cycle topic development | "从研究方向开始，完成选题、检索、阅读和综述草稿。" (Start from a research direction; complete topic selection, search, reading, and a review draft.) |
-| Paper to presentation | "把这篇论文精读后制作中文汇报 PPT。" (Deep-read this paper and build a Chinese presentation deck.) |
-| Chinese-to-English drafting | "将中文研究思路写成英文初稿，再进行学术润色和引用检查。" (Turn my Chinese research ideas into an English draft, then polish and check citations.) |
-| Handling peer review | "根据审稿意见制定返修路线并检查统计方法。" (Plan the revision from reviewer comments and check the statistical methods.) |
-| Code slimming | "审查这个分析仓库是否存在过度工程，并给出简化方案。" (Audit this analysis repo for over-engineering and propose simplifications.) |
-| PDF batch processing | "把这批 PDF 分类、抽取文本并转成 Markdown，供后续综述使用。" (Classify these PDFs, extract text, convert to Markdown for a later review.) |
+| Full-cycle topic development | "Start from a research direction and complete topic selection, search, reading, and a review draft." |
+| Paper to presentation | "Deep-read this paper and build a Chinese presentation deck." |
+| Chinese-to-English drafting | "Turn my Chinese research ideas into an English draft, then polish the language and check citations." |
+| Handling peer review | "Plan the revision route from the reviewer comments and check the statistical methods." |
+| Code slimming | "Audit this analysis repository for over-engineering and propose simplifications." |
+| PDF batch processing | "Classify this batch of PDFs, extract the text, and convert it to Markdown for a later review." |
 
 **Expected behavior**: the agent first determines your stage and deliverable type, invokes the matching specialist skill, and keeps language, venue requirements, evidence standards, and intermediate artifacts consistent across steps.
 
