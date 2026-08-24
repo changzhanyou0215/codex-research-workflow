@@ -1,0 +1,13 @@
+interface:
+  display_name: "Academic Slides: Exact Template"
+  short_description: "Build academic decks with Image2 and editable template routes."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+  default_prompt: "Use $academic-slide-pragmatic-fallback to make a Chinese paper-report deck from real figures, choosing Image2 or an editable exact-template route."
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

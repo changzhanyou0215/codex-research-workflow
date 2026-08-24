@@ -7,7 +7,7 @@
 [![Format](https://img.shields.io/badge/format-SKILL.md-blue)](SKILL.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/language-%E4%B8%AD%E6%96%87%E4%BC%98%E5%85%88%20%7C%20Chinese--first-orange)]()
-[![Skills](https://img.shields.io/badge/routed%20skills-29-purple)](#技能路由总表)
+[![Skills](https://img.shields.io/badge/routed%20skills-30-purple)](#技能路由总表)
 
 </div>
 
@@ -17,7 +17,7 @@
 
 `codex-research-workflow` is a **workflow router skill** for AI coding/research agents (Codex-style tools that follow the `SKILL.md` convention). It coordinates a Chinese-first, end-to-end academic research pipeline: topic discovery → literature processing → manuscript writing → figures & presentations → peer review & revision → statistics → research-code quality. It routes each user request to the most suitable specialist skill while preserving the user's language, target venue, evidence standard, and output format. It never invents citations, data, or results.
 
-> ⚠️ This repository ships the **router** only. It coordinates 29 specialist skills; install those skills alongside for full functionality (see [安装](#安装)).
+> ✅ 本仓库为**完整技能包**：`skills/` 子目录已包含本工作流协调的全部 30 个专项技能（含各自的脚本与资源），克隆/复制即可开箱使用（见 [安装](#安装)）。
 
 ---
 
@@ -149,7 +149,7 @@ flowchart LR
 
 ## 技能路由总表
 
-本工作流目前协调以下 **29 个专项技能**：
+本工作流目前协调以下 **30 个专项技能**（全部随仓库 `skills/` 目录一并发布）：
 
 | # | 技能 | 所属阶段 |
 | --- | --- | --- |
@@ -181,7 +181,8 @@ flowchart LR
 | 26 | `nature-response` | Phase 4 评审与统计 |
 | 27 | `statistical-analysis` | Phase 4 评审与统计 |
 | 28 | `office-academic-skill` | Phase 4 协调 |
-| 29 | `research-writing-skill` / `scientific-toolkit-skill` | Phase 4 协调 |
+| 29 | `research-writing-skill` | Phase 4 协调 |
+| 30 | `scientific-toolkit-skill` | Phase 4 协调 |
 
 ## 协调规则
 
@@ -219,34 +220,53 @@ flowchart LR
 git clone https://github.com/changzhanyou0215/codex-research-workflow.git
 ```
 
-然后将包含 `SKILL.md` 的文件夹复制到你所用平台加载技能的目录，确保路径形如：
+仓库中 `skills/` 目录已经包含全部 30 个专项技能。安装 = 把 `skills/` 下的每个技能目录复制到你所用平台加载技能的目录：
 
-```text
-<skills 目录>/codex-research-workflow/SKILL.md
+```bash
+# 示例：将全部技能复制到 opencode 的 skills 目录
+xcopy /E /I codex-research-workflow\skills\* <平台技能目录>\
 ```
 
-常见平台示例（以各平台官方文档为准）：
+确保最终路径形如：
 
-- **opencode**：`.opencode/skill/codex-research-workflow/SKILL.md`
-- **Claude Code**：`.claude/skills/codex-research-workflow/SKILL.md`
-- 其他支持 SKILL.md 约定的工具，请参照其文档放置。
+```text
+<skills 目录>/codex-research-workflow/SKILL.md        # 路由器
+<skills 目录>/nature-writing/SKILL.md                 # 各专项技能
+<skills 目录>/pdf-inspector/SKILL.md
+...
+```
 
-### 方式二：手动复制
+常见平台目录示例（以各平台官方文档为准）：
 
-只需把本仓库中的 `SKILL.md` 放入平台技能目录下的同名文件夹即可；`README.md` 与 `LICENSE` 仅用于 GitHub 展示，非运行必需。
+- **opencode**：`.opencode/skill/`
+- **Claude Code**：`.claude/skills/`
+- **Codex CLI**：`~/.codex/skills/`
 
-### 重要提示
+### 方式二：仅安装主技能
 
-- 本技能是 **路由器**。要获得完整能力，需要同时安装它所协调的 29 个专项技能；只装路由器时，Agent 能理解流程但无法调用具体专长。
-- 各专项技能是否已随你的环境安装，可直接询问你的 Agent："列出当前可用的技能。"
+只复制 `SKILL.md` 到平台技能目录下的同名文件夹即可获得路由能力；若要实际执行各阶段任务，请同时复制 `skills/` 下对应技能。
+
+### 完整技能包说明
+
+- 本仓库**不是只有路由器**：`skills/` 内打包发布全部 30 个被协调的专项技能，包含其脚本与资源（PDF 工具、图表模板、PPT 模板、统计工具等），总计约 95 MB，约 4000+ 个文件。
+- 各技能随本仓库版本保持同步；如需单独更新某个技能，可复制新的技能目录覆盖 `skills/` 对应目录后提交。
+- 安装后可直接询问你的 Agent："列出当前可用的技能。" 来验证加载状态。
 
 ## 仓库结构
 
 ```text
 codex-research-workflow/
-├── SKILL.md      # 技能主文件（含 frontmatter 元数据与完整路由逻辑）
-├── README.md     # 本说明文档
-└── LICENSE       # MIT 许可证
+├── SKILL.md            # 路由器主文件（含 frontmatter 元数据与完整路由逻辑）
+├── README.md           # 本说明文档
+├── LICENSE             # MIT 许可证
+└── skills/             # 完整技能包：被协调的全部 30 个专项技能
+    ├── scientific-brainstorming/
+    ├── nature-academic-search/
+    ├── pdf-inspector/
+    ├── nature-writing/
+    ├── ponytail/
+    ├── academic-research-suite/
+    └── ... (30 个技能目录，含脚本与资源文件)
 ```
 
 ## 注意事项与局限性
@@ -254,12 +274,12 @@ codex-research-workflow/
 - 本技能旨在提升写作与流程质量，**不承诺绕过任何 AI 检测器**；humanizer 的定位是改善作者性、清晰度、具体性与自然学术语感。
 - 人性化改写会严格保留含义、引用、局限性与证据，因此不会为了"降检测率"而牺牲学术准确性。
 - 涉及事实可能变化的研究问题（最新进展、数据、政策等），应以现行权威来源核验为准。
-- 本仓库不包含各专项技能的实现，仅包含路由逻辑。
+- 各专项技能随包发布，但部分技能（如 `pdf-inspector`、`nature-figure`）依赖特定运行时（Python 库、PDF/OCR 工具等），使用前请参照对应技能的 SKILL.md 检查环境依赖。
 
 ## 常见问题 FAQ
 
 **Q1：只安装这一个 SKILL.md 就能用全部功能吗？**
-不能。它是调度层，需要配合其协调的专项技能一起安装才能实际执行各阶段任务。
+只装 `SKILL.md` 获得的是路由/调度能力。完整功能无需另行下载——`skills/` 目录已随包提供全部 30 个专项技能，同样复制到技能目录即可。
 
 **Q2：支持纯英文项目吗？**
 支持。"中文优先"指默认沟通语言与中文输入的深度支持，英文写作、润色与改写同样是核心能力。
